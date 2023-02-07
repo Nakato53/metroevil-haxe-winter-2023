@@ -1,5 +1,6 @@
 package;
 
+import Animation.AnimationType;
 import utils.Random;
 import kha.math.Vector2;
 import kha.graphics2.Graphics1;
@@ -20,6 +21,8 @@ class Game {
     public var playerImage:Image;
     public var mouse:Vector2;
 
+    public var playerAnimation:Animation;
+
 	public function new() {
         Game.TIMER = new Timer();
 		backbuffer = Image.createRenderTarget(Config.GAME_WIDTH, Config.GAME_HEIGHT);
@@ -27,38 +30,26 @@ class Game {
         flashlightImage = Assets.images.flashlight;
         playerImage = Assets.images.player;
         mouse = new Vector2(0,0);
+
+        playerAnimation = new Animation();
+        playerAnimation.setImage(playerImage);
+        playerAnimation.setAnimationType(AnimationType.Loop);
+        playerAnimation.addFrame({x: 0,y: 0, w: 16, h:16, lifetime: 1/60*4});
+        playerAnimation.addFrame({x: 16,y: 0, w: 16, h:16, lifetime: 1/60*4});
+        playerAnimation.addFrame({x: 32,y: 0, w: 16, h:16, lifetime: 1/60*4});
+        playerAnimation.addFrame({x: 48,y: 0, w: 16, h:16, lifetime: 1/60*30});
+
+
 		Mouse.get().notify(null, null, onMouseMove, null);
 
 	}
 
     public function update(): Void {
         Game.TIMER.update();
-       trace( Game.TIMER.deltaTime);
+        playerAnimation.update();
     }
 
 	public function draw(graphics: Graphics): Void {
-		
-        backbuffer.g2.begin(true, Color.Transparent);
-        
-		backbuffer.g2.color = Color.Black;
-        backbuffer.g2.fillRect(0,0,Config.GAME_WIDTH,Config.GAME_HEIGHT);
-		backbuffer.g2.color = Color.White;
-        backbuffer.g2.end();
-
-        backbuffer.g1.begin();
-        // for (x in (Math.floor(mouse.x) -50)...Math.floor(mouse.x)) {
-        //     for(y in Math.floor(mouse.y)-50...Math.floor(mouse.y)+50){
-        //         if(x>0 && y> 0 && x<Config.GAME_WIDTH && y < Config.GAME_HEIGHT){
-        //             backbuffer.g1.setPixel(x,y,Color.Transparent);
-        //         }
-        //     }
-        // };
-        for(x in 0...50){
-            for(y in 0...50){
-                backbuffer.g1.setPixel(x,y,Color.Transparent);
-            }
-        }
-        backbuffer.g1.end();
 
 
         graphics.begin(true, Color.fromBytes(48, 11, 70));
@@ -68,13 +59,10 @@ class Game {
         graphics.fillRect(70,80,60,40);
         
 		graphics.color = Color.White;
-        
-        graphics.opacity = 1;
-        graphics.drawSubImage(playerImage,mouse.x-16,mouse.y-5,48,0,16,16);
-        
-      //  graphics.opacity = 0.5;
-        graphics.drawImage(backbuffer,0,0);
-      //  graphics.drawScaledImage(flashlightImage,mouse.x-175,mouse.y-100,flashlightImage.width+Random.randomRangeFloat(-2,2),flashlightImage.height+Random.randomRangeFloat(-2,2));
+
+        graphics.drawScaledImage(flashlightImage,mouse.x-175,mouse.y-100,flashlightImage.width+Random.randomRangeFloat(-2,2),flashlightImage.height+Random.randomRangeFloat(-2,2));        
+        playerAnimation.drawCurrentFrame(graphics,Math.floor(mouse.x-16),Math.floor(mouse.y-5));
+     //   graphics.drawSubImage(playerImage,mouse.x-16,mouse.y-5,48,0,16,16);
         graphics.end();		
 
 
